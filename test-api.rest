@@ -1,0 +1,174 @@
+### Variables
+@baseUrl = http://localhost:3000
+@orgId = REPLACE_WITH_CREATED_ID
+@userId = REPLACE_WITH_CREATED_USER_ID
+
+### 1. Créer une organisation
+POST {{baseUrl}}/organizations
+Content-Type: application/json
+
+{
+  "name": "Krav Maga Lyon Centre",
+  "slug": "krav-maga-lyon-centre",
+  "email": "contact@kravlyon.fr",
+  "phone": "0612345678",
+  "address": "123 rue de la République, 69002 Lyon"
+}
+
+### 2. Récupérer toutes les organisations
+GET {{baseUrl}}/organizations
+
+### 3. Récupérer une organisation par ID
+GET {{baseUrl}}/organizations/{{orgId}}
+
+### 4. Récupérer une organisation par slug
+GET {{baseUrl}}/organizations/slug/krav-maga-lyon-centre
+
+### 5. Mettre à jour une organisation
+PATCH {{baseUrl}}/organizations/{{orgId}}
+Content-Type: application/json
+
+{
+  "name": "Krav Maga Lyon Centre - Updated",
+  "phone": "0698765432"
+}
+
+### 6. Supprimer une organisation (soft delete)
+DELETE {{baseUrl}}/organizations/{{orgId}}
+
+### 7. Restaurer une organisation
+POST {{baseUrl}}/organizations/{{orgId}}/restore
+
+### 8. Test validation - Devrait échouer (slug invalide)
+POST {{baseUrl}}/organizations
+Content-Type: application/json
+
+{
+  "name": "Test Org",
+  "slug": "TEST_INVALID_SLUG!",
+  "email": "test@example.com"
+}
+
+###############################################################################
+# USERS ENDPOINTS
+###############################################################################
+
+### 9. Créer un utilisateur admin
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "organization_id": "{{orgId}}",
+  "email": "admin@kravlyon.fr",
+  "password": "SecurePassword123!",
+  "first_name": "Jean",
+  "last_name": "Dupont",
+  "phone": "0612345678",
+  "date_of_birth": "1985-05-15",
+  "role": "admin",
+  "status": "active"
+}
+
+### 10. Créer un utilisateur coach
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "organization_id": "{{orgId}}",
+  "email": "coach@kravlyon.fr",
+  "password": "SecurePassword123!",
+  "first_name": "Marie",
+  "last_name": "Martin",
+  "phone": "0698765432",
+  "role": "coach"
+}
+
+### 11. Créer un membre
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "organization_id": "{{orgId}}",
+  "email": "membre@example.com",
+  "password": "SecurePassword123!",
+  "first_name": "Pierre",
+  "last_name": "Durand",
+  "role": "member"
+}
+
+### 12. Récupérer tous les utilisateurs
+GET {{baseUrl}}/users
+
+### 13. Récupérer tous les utilisateurs d'une organisation
+GET {{baseUrl}}/users?organizationId={{orgId}}
+
+### 14. Récupérer tous les coachs d'une organisation
+GET {{baseUrl}}/users/organization/{{orgId}}?role=coach
+
+### 15. Récupérer tous les membres d'une organisation
+GET {{baseUrl}}/users/organization/{{orgId}}?role=member
+
+### 16. Récupérer un utilisateur par ID
+GET {{baseUrl}}/users/{{userId}}
+
+### 17. Mettre à jour un utilisateur
+PATCH {{baseUrl}}/users/{{userId}}
+Content-Type: application/json
+
+{
+  "first_name": "Jean-Updated",
+  "phone": "0611223344"
+}
+
+### 18. Changer le mot de passe d'un utilisateur
+PATCH {{baseUrl}}/users/{{userId}}/password
+Content-Type: application/json
+
+{
+  "newPassword": "NewSecurePassword456!"
+}
+
+### 19. Supprimer un utilisateur (soft delete)
+DELETE {{baseUrl}}/users/{{userId}}
+
+### 20. Restaurer un utilisateur
+POST {{baseUrl}}/users/{{userId}}/restore
+
+### 21. Test validation - Devrait échouer (mot de passe trop court)
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "organization_id": "{{orgId}}",
+  "email": "test@example.com",
+  "password": "short",
+  "first_name": "Test",
+  "last_name": "User",
+  "role": "member"
+}
+
+### 22. Test validation - Devrait échouer (email invalide)
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "organization_id": "{{orgId}}",
+  "email": "not-an-email",
+  "password": "SecurePassword123!",
+  "first_name": "Test",
+  "last_name": "User",
+  "role": "member"
+}
+
+### 23. Test validation - Devrait échouer (rôle invalide)
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "organization_id": "{{orgId}}",
+  "email": "test@example.com",
+  "password": "SecurePassword123!",
+  "first_name": "Test",
+  "last_name": "User",
+  "role": "super-admin"
+}
