@@ -426,3 +426,148 @@ Authorization: Bearer {{accessToken}}
 ### 54. Supprimer une présence
 DELETE {{baseUrl}}/attendances/ATTENDANCE_ID
 Authorization: Bearer {{accessToken}}
+
+###############################################################################
+# SUBSCRIPTIONS ENDPOINTS
+###############################################################################
+
+### 55. Créer un abonnement mensuel
+POST {{baseUrl}}/subscriptions
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "user_id": "{{userId}}",
+  "subscription_type": {
+    "name": "Mensuel",
+    "duration_months": 1,
+    "price": 50,
+    "currency": "EUR",
+    "description": "Abonnement mensuel - Accès illimité",
+    "benefits": ["Accès illimité aux cours", "1 cours privé offert"]
+  },
+  "start_date": "2025-01-01",
+  "payment_status": "paid",
+  "payment_method": "card",
+  "auto_renew": true
+}
+
+### 56. Créer un abonnement trimestriel
+POST {{baseUrl}}/subscriptions
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "user_id": "{{userId}}",
+  "subscription_type": {
+    "name": "Trimestriel",
+    "duration_months": 3,
+    "price": 135,
+    "currency": "EUR",
+    "description": "Abonnement trimestriel - 10% de réduction"
+  },
+  "start_date": "2025-01-01",
+  "payment_status": "paid",
+  "payment_method": "transfer"
+}
+
+### 57. Créer un abonnement annuel
+POST {{baseUrl}}/subscriptions
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "user_id": "{{userId}}",
+  "subscription_type": {
+    "name": "Annuel",
+    "duration_months": 12,
+    "price": 480,
+    "currency": "EUR",
+    "description": "Abonnement annuel - 20% de réduction",
+    "benefits": ["Accès illimité", "5 cours privés offerts", "Kit sportif offert"]
+  },
+  "start_date": "2025-01-01",
+  "payment_status": "paid",
+  "payment_method": "card"
+}
+
+### 58. Récupérer tous les abonnements de l'organisation
+GET {{baseUrl}}/subscriptions
+Authorization: Bearer {{accessToken}}
+
+### 59. Statistiques des abonnements
+GET {{baseUrl}}/subscriptions/stats
+Authorization: Bearer {{accessToken}}
+
+### 60. Abonnements qui expirent bientôt (7 jours)
+GET {{baseUrl}}/subscriptions/expiring-soon
+Authorization: Bearer {{accessToken}}
+
+### 61. Abonnements expirés
+GET {{baseUrl}}/subscriptions/expired
+Authorization: Bearer {{accessToken}}
+
+### 62. Marquer automatiquement les abonnements expirés
+POST {{baseUrl}}/subscriptions/mark-expired
+Authorization: Bearer {{accessToken}}
+
+### 63. Récupérer l'historique des abonnements d'un utilisateur
+GET {{baseUrl}}/subscriptions/user/{{userId}}
+Authorization: Bearer {{accessToken}}
+
+### 64. Récupérer l'abonnement actif d'un utilisateur
+GET {{baseUrl}}/subscriptions/user/{{userId}}/active
+Authorization: Bearer {{accessToken}}
+
+### 65. Récupérer un abonnement par ID
+GET {{baseUrl}}/subscriptions/SUBSCRIPTION_ID
+Authorization: Bearer {{accessToken}}
+
+### 66. Renouveler un abonnement
+POST {{baseUrl}}/subscriptions/SUBSCRIPTION_ID/renew
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "payment_status": "paid",
+  "payment_method": "card",
+  "payment_reference": "RENEW-2025-001",
+  "notes": "Renouvellement automatique"
+}
+
+### 67. Annuler un abonnement
+POST {{baseUrl}}/subscriptions/SUBSCRIPTION_ID/cancel
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "reason": "Déménagement",
+  "notes": "Client part à l'étranger"
+}
+
+### 68. Suspendre un abonnement (temporaire)
+POST {{baseUrl}}/subscriptions/SUBSCRIPTION_ID/suspend
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "reason": "Blessure - suspension de 2 mois"
+}
+
+### 69. Réactiver un abonnement suspendu
+POST {{baseUrl}}/subscriptions/SUBSCRIPTION_ID/reactivate
+Authorization: Bearer {{accessToken}}
+
+### 70. Modifier un abonnement
+PATCH {{baseUrl}}/subscriptions/SUBSCRIPTION_ID
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "payment_status": "paid",
+  "notes": "Paiement reçu en espèces"
+}
+
+### 71. Supprimer un abonnement
+DELETE {{baseUrl}}/subscriptions/SUBSCRIPTION_ID
+Authorization: Bearer {{accessToken}}

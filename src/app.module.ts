@@ -8,6 +8,7 @@ import { UsersModule } from './modules/users/users.module';
 import { CoursesModule } from './modules/courses/courses.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AttendancesModule } from './modules/attendances/attendances.module';
+import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { AttendancesModule } from './modules/attendances/attendances.module';
     UsersModule,
     CoursesModule,
     AttendancesModule,
+    SubscriptionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
