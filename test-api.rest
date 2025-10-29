@@ -2,6 +2,7 @@
 @baseUrl = http://localhost:3000
 @orgId = REPLACE_WITH_CREATED_ID
 @userId = REPLACE_WITH_CREATED_USER_ID
+@courseId = REPLACE_WITH_CREATED_COURSE_ID
 
 ### 1. Créer une organisation
 POST {{baseUrl}}/organizations
@@ -171,4 +172,109 @@ Content-Type: application/json
   "first_name": "Test",
   "last_name": "User",
   "role": "super-admin"
+}
+
+###############################################################################
+# COURSES ENDPOINTS
+###############################################################################
+
+### 24. Créer un cours simple
+POST {{baseUrl}}/courses
+Content-Type: application/json
+
+{
+  "organization_id": "{{orgId}}",
+  "title": "Krav Maga Débutants",
+  "description": "Cours pour débutants - techniques de base",
+  "course_type": "krav-maga",
+  "start_datetime": "2025-11-03T18:00:00Z",
+  "end_datetime": "2025-11-03T19:30:00Z",
+  "location": "Dojo Principal",
+  "coach_id": "{{userId}}",
+  "max_capacity": 20,
+  "status": "scheduled"
+}
+
+### 25. Créer un cours récurrent (tous les lundis)
+POST {{baseUrl}}/courses
+Content-Type: application/json
+
+{
+  "organization_id": "{{orgId}}",
+  "title": "Krav Maga Avancés - Lundi",
+  "description": "Cours avancé tous les lundis",
+  "course_type": "krav-maga",
+  "start_datetime": "2025-11-03T19:45:00Z",
+  "end_datetime": "2025-11-03T21:15:00Z",
+  "location": "Dojo Principal",
+  "coach_id": "{{userId}}",
+  "max_capacity": 15,
+  "is_recurring": true,
+  "recurrence_rule": {
+    "frequency": "weekly",
+    "day_of_week": 1,
+    "interval": 1,
+    "count": 12
+  },
+  "status": "scheduled"
+}
+
+### 26. Récupérer tous les cours
+GET {{baseUrl}}/courses
+
+### 27. Récupérer tous les cours d'une organisation
+GET {{baseUrl}}/courses?organizationId={{orgId}}
+
+### 28. Récupérer les cours à venir (prochains 10)
+GET {{baseUrl}}/courses/upcoming/{{orgId}}?limit=10
+
+### 29. Récupérer les cours par plage de dates
+GET {{baseUrl}}/courses/date-range/{{orgId}}?startDate=2025-11-01&endDate=2025-11-30
+
+### 30. Récupérer un cours par ID
+GET {{baseUrl}}/courses/{{courseId}}
+
+### 31. Mettre à jour un cours
+PATCH {{baseUrl}}/courses/{{courseId}}
+Content-Type: application/json
+
+{
+  "title": "Krav Maga Débutants - MODIFIÉ",
+  "max_capacity": 25
+}
+
+### 32. Annuler un cours
+POST {{baseUrl}}/courses/{{courseId}}/cancel
+Content-Type: application/json
+
+{
+  "reason": "Coach malade",
+  "cancelFutureOccurrences": false
+}
+
+### 33. Annuler un cours et toutes les occurrences futures
+POST {{baseUrl}}/courses/{{courseId}}/cancel
+Content-Type: application/json
+
+{
+  "reason": "Fermeture du dojo pour travaux",
+  "cancelFutureOccurrences": true
+}
+
+### 34. Supprimer un cours (soft delete)
+DELETE {{baseUrl}}/courses/{{courseId}}
+
+### 35. Restaurer un cours
+POST {{baseUrl}}/courses/{{courseId}}/restore
+
+### 36. Test validation - Devrait échouer (date de fin avant date de début)
+POST {{baseUrl}}/courses
+Content-Type: application/json
+
+{
+  "organization_id": "{{orgId}}",
+  "title": "Test cours invalide",
+  "start_datetime": "2025-11-03T20:00:00Z",
+  "end_datetime": "2025-11-03T18:00:00Z",
+  "coach_id": "{{userId}}"
 }
