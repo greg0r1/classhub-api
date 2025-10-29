@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
@@ -9,6 +10,8 @@ import { CoursesModule } from './modules/courses/courses.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AttendancesModule } from './modules/attendances/attendances.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
+import { TenantMiddleware } from './common/middleware/tenant.middleware';
+import { TenantInterceptor } from './common/interceptors/tenant.interceptor';
 
 @Module({
   imports: [
@@ -45,6 +48,18 @@ import { SubscriptionsModule } from './modules/subscriptions/subscriptions.modul
     SubscriptionsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    // Enregistrer l'intercepteur multi-tenant globalement
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TenantInterceptor,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    // Appliquer le middleware multi-tenant sur toutes les routes
+    consumer.apply(TenantMiddleware).forRoutes('*');
+  }
+}

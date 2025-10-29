@@ -571,3 +571,68 @@ Authorization: Bearer {{accessToken}}
 ### 71. Supprimer un abonnement
 DELETE {{baseUrl}}/subscriptions/SUBSCRIPTION_ID
 Authorization: Bearer {{accessToken}}
+
+###############################################################################
+# MULTI-TENANT SECURITY TESTS
+###############################################################################
+
+### 72. Test - Tentative d'accès à une organisation différente (doit échouer)
+# Scénario : User de l'org A tente d'accéder aux users de l'org B
+# Résultat attendu : 403 Forbidden
+POST {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "organization_id": "00000000-0000-0000-0000-000000000000",
+  "email": "hack@example.com",
+  "password": "Password123!",
+  "first_name": "Hacker",
+  "last_name": "Test",
+  "role": "member"
+}
+
+### 73. Test - Tentative de créer un cours pour une autre organisation (doit échouer)
+POST {{baseUrl}}/courses
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "organization_id": "00000000-0000-0000-0000-000000000000",
+  "title": "Cours hacké",
+  "start_datetime": "2025-02-01T19:00:00Z",
+  "end_datetime": "2025-02-01T20:30:00Z"
+}
+
+### 74. Test - Tentative de créer un abonnement pour un user d'une autre org (doit échouer)
+POST {{baseUrl}}/subscriptions
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "user_id": "00000000-0000-0000-0000-000000000000",
+  "subscription_type": {
+    "name": "Mensuel",
+    "duration_months": 1,
+    "price": 50,
+    "currency": "EUR"
+  },
+  "start_date": "2025-01-01",
+  "payment_status": "paid"
+}
+
+### 75. Note sur le Multi-tenant
+# Le middleware multi-tenant protège automatiquement TOUTES les routes
+#
+# Protection :
+# 1. TenantMiddleware : Extrait organization_id du JWT
+# 2. TenantInterceptor : Valide que toutes les requêtes respectent l'isolation
+# 3. Bloque automatiquement si organization_id différent
+#
+# Impossible de :
+# - Créer des ressources pour une autre organisation
+# - Lire des données d'une autre organisation
+# - Modifier des données d'une autre organisation
+# - Même en devinant les UUIDs
+#
+# Sécurité au niveau applicatif + base de données
