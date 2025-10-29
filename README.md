@@ -2,6 +2,8 @@
 
 API REST pour la gestion des présences et abonnements dans les clubs sportifs, construite avec NestJS, TypeORM et PostgreSQL.
 
+📚 **[Documentation Swagger Interactive](http://localhost:3000/api)** - Une fois l'application démarrée
+
 ## Description
 
 ClassHub est une API complète conçue pour la gestion de clubs sportifs. Elle permet de gérer les organisations, les utilisateurs, les cours avec système de récurrence, les présences, et les abonnements dans une architecture multi-tenant sécurisée.
@@ -123,6 +125,41 @@ npm run start:prod
 ```
 
 L'API sera disponible sur `http://localhost:3000`
+
+**Documentation Swagger** disponible sur : http://localhost:3000/api
+
+## Documentation API
+
+### Swagger / OpenAPI
+
+Une documentation interactive complète est disponible via Swagger UI :
+
+**🔗 http://localhost:3000/api**
+
+Fonctionnalités :
+- 📖 Liste de tous les endpoints avec descriptions
+- 🧪 Tester les API directement dans le navigateur
+- 🔐 Authentification JWT intégrée (bouton "Authorize")
+- 📝 Schémas de requêtes/réponses avec exemples
+- 🔍 Recherche et filtrage par tags
+- 📥 Export OpenAPI JSON : http://localhost:3000/api-json
+
+**Guide complet** : [docs/SWAGGER.md](docs/SWAGGER.md)
+
+### Tests API avec REST Client
+
+Un fichier [test-api.rest](test-api.rest) contient **89 tests d'API** pour tous les endpoints.
+
+Installation de l'extension VSCode :
+```
+REST Client par Huachao Mao
+```
+
+Variables à configurer :
+- `@orgId` : ID d'une organisation
+- `@userId` : ID d'un utilisateur
+- `@courseId` : ID d'un cours
+- `@accessToken` : Token JWT (obtenu via /auth/login)
 
 ## Structure du projet
 

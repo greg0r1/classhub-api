@@ -33,6 +33,7 @@
     "@nestjs/mapped-types": "^2.0.7",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^8.0.7",
     "@nestjs/typeorm": "^11.0.0",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",
