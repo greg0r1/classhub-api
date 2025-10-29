@@ -636,3 +636,87 @@ Authorization: Bearer {{accessToken}}
 # - Même en devinant les UUIDs
 #
 # Sécurité au niveau applicatif + base de données
+
+###############################################################################
+# AUDIT LOGS ENDPOINTS
+###############################################################################
+
+### 76. Récupérer tous les logs d'audit (avec filtres)
+GET {{baseUrl}}/audit-logs?limit=20&offset=0
+Authorization: Bearer {{accessToken}}
+
+### 77. Filtrer les logs par action (CREATE)
+GET {{baseUrl}}/audit-logs?action=CREATE&limit=20
+Authorization: Bearer {{accessToken}}
+
+### 78. Filtrer les logs par type d'entité
+GET {{baseUrl}}/audit-logs?entity_type=User&limit=20
+Authorization: Bearer {{accessToken}}
+
+### 79. Filtrer les logs par utilisateur
+GET {{baseUrl}}/audit-logs?user_id={{userId}}&limit=50
+Authorization: Bearer {{accessToken}}
+
+### 80. Filtrer les logs par période
+GET {{baseUrl}}/audit-logs?start_date=2025-01-01&end_date=2025-12-31
+Authorization: Bearer {{accessToken}}
+
+### 81. Statistiques des logs (30 derniers jours)
+GET {{baseUrl}}/audit-logs/stats?days=30
+Authorization: Bearer {{accessToken}}
+
+### 82. Logs récents (dernières 24h)
+GET {{baseUrl}}/audit-logs/recent?hours=24
+Authorization: Bearer {{accessToken}}
+
+### 83. Tentatives de connexion échouées
+GET {{baseUrl}}/audit-logs/failed-logins?hours=24
+Authorization: Bearer {{accessToken}}
+
+### 84. Historique d'une entité spécifique (ex: un cours)
+GET {{baseUrl}}/audit-logs/entity/Course/{{courseId}}
+Authorization: Bearer {{accessToken}}
+
+### 85. Historique d'un utilisateur spécifique
+GET {{baseUrl}}/audit-logs/user/{{userId}}?limit=100
+Authorization: Bearer {{accessToken}}
+
+### 86. Détails d'un log spécifique
+GET {{baseUrl}}/audit-logs/AUDIT_LOG_ID
+Authorization: Bearer {{accessToken}}
+
+### 87. Exporter les logs (conformité RGPD)
+GET {{baseUrl}}/audit-logs/export?start_date=2025-01-01&end_date=2025-12-31
+Authorization: Bearer {{accessToken}}
+
+### 88. Nettoyer les logs anciens (retention policy - 1 an par défaut)
+POST {{baseUrl}}/audit-logs/clean?retention_days=365
+Authorization: Bearer {{accessToken}}
+
+### 89. Note sur l'Audit automatique
+# Toutes les actions sont automatiquement loggées :
+#
+# Actions loggées :
+# - CREATE : Création (POST)
+# - UPDATE : Modification (PUT/PATCH)
+# - DELETE : Suppression (DELETE)
+# - LOGIN : Connexion
+# - FAILED_LOGIN : Tentative échouée
+# - CANCEL : Annulation (cours, abonnement)
+# - RENEW : Renouvellement
+# - SUSPEND/REACTIVATE : Suspension/Réactivation
+#
+# Informations capturées :
+# - Qui : user_id, user_email, user_role
+# - Quoi : action, entity_type, entity_id
+# - Quand : created_at
+# - Où : ip_address, user_agent
+# - Comment : http_method, request_url
+# - Valeurs : old_values, new_values (avant/après)
+# - Succès : success (true/false), error_message
+#
+# Conformité RGPD :
+# - Traçabilité complète
+# - Export possible
+# - Retention policy configurable
+# - Champs sensibles automatiquement masqués ([REDACTED])

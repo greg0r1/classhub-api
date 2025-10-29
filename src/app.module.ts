@@ -10,8 +10,11 @@ import { CoursesModule } from './modules/courses/courses.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AttendancesModule } from './modules/attendances/attendances.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
+import { AuditLogsModule } from './modules/audit-logs/audit-logs.module';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 import { TenantInterceptor } from './common/interceptors/tenant.interceptor';
+import { AuditInterceptor } from './common/interceptors/audit.interceptor';
+import { AuditLog } from './database/entities/audit-log.entity';
 
 @Module({
   imports: [
@@ -39,6 +42,9 @@ import { TenantInterceptor } from './common/interceptors/tenant.interceptor';
       inject: [ConfigService],
     }),
 
+    // Importer AuditLog pour l'AuditInterceptor
+    TypeOrmModule.forFeature([AuditLog]),
+
     // Modules métier
     AuthModule,
     OrganizationsModule,
@@ -46,6 +52,7 @@ import { TenantInterceptor } from './common/interceptors/tenant.interceptor';
     CoursesModule,
     AttendancesModule,
     SubscriptionsModule,
+    AuditLogsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -54,6 +61,11 @@ import { TenantInterceptor } from './common/interceptors/tenant.interceptor';
     {
       provide: APP_INTERCEPTOR,
       useClass: TenantInterceptor,
+    },
+    // Enregistrer l'intercepteur d'audit globalement
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
     },
   ],
 })
