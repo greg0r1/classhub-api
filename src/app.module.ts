@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
 import { UsersModule } from './modules/users/users.module';
 import { CoursesModule } from './modules/courses/courses.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { CoursesModule } from './modules/courses/courses.module';
     }),
 
     // Modules métier
+    AuthModule,
     OrganizationsModule,
     UsersModule,
     CoursesModule,

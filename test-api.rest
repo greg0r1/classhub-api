@@ -3,6 +3,7 @@
 @orgId = REPLACE_WITH_CREATED_ID
 @userId = REPLACE_WITH_CREATED_USER_ID
 @courseId = REPLACE_WITH_CREATED_COURSE_ID
+@accessToken = REPLACE_WITH_JWT_TOKEN
 
 ### 1. Créer une organisation
 POST {{baseUrl}}/organizations
@@ -277,4 +278,53 @@ Content-Type: application/json
   "start_datetime": "2025-11-03T20:00:00Z",
   "end_datetime": "2025-11-03T18:00:00Z",
   "coach_id": "{{userId}}"
+}
+
+###############################################################################
+# AUTH ENDPOINTS
+###############################################################################
+
+### 37. S'inscrire (Register)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "organization_id": "{{orgId}}",
+  "email": "newuser@kravlyon.fr",
+  "password": "SecurePassword123!",
+  "first_name": "Nouveau",
+  "last_name": "Membre",
+  "phone": "0612345678",
+  "role": "member"
+}
+
+### 38. Se connecter (Login)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@kravlyon.fr",
+  "password": "SecurePassword123!"
+}
+
+### 39. Récupérer mon profil (nécessite JWT)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{accessToken}}
+
+### 40. Test - Login avec mauvais mot de passe (doit échouer)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@kravlyon.fr",
+  "password": "wrongpassword"
+}
+
+### 41. Test - Login avec email inexistant (doit échouer)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "nonexistent@example.com",
+  "password": "SecurePassword123!"
 }
