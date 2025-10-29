@@ -1,98 +1,369 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# ClassHub API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+API REST pour la gestion des présences et abonnements dans les clubs sportifs, construite avec NestJS, TypeORM et PostgreSQL.
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+ClassHub est une API complète conçue pour la gestion de clubs sportifs. Elle permet de gérer les organisations, les utilisateurs, les cours avec système de récurrence, les présences, et les abonnements dans une architecture multi-tenant sécurisée.
 
-## Project setup
+## Fonctionnalités
+
+### Modules implémentés
+
+#### 1. Organizations (Organisations)
+- Gestion des clubs sportifs
+- Configuration personnalisée (logo, couleurs, langue, fuseau horaire)
+- Paramètres de notification et communication
+- Soft delete pour préserver l'historique
+
+#### 2. Users (Utilisateurs)
+- Gestion des membres, coachs et administrateurs
+- Authentification sécurisée avec bcrypt
+- Rôles: `admin`, `coach`, `member`
+- Profil complet avec contact et préférences
+- Isolation par organisation (multi-tenant)
+
+#### 3. Auth (Authentification)
+- Authentification JWT avec Passport
+- Endpoints: register, login, profile
+- Guards pour la protection des routes
+- Role-based access control (RBAC)
+- Tokens avec expiration configurable (7 jours par défaut)
+
+#### 4. Courses (Cours)
+- Gestion des cours et activités
+- **Système de récurrence avancé**:
+  - Fréquences: daily, weekly, monthly
+  - Intervalle personnalisable
+  - Génération automatique de 90 jours d'occurrences
+  - Relation parent/enfant pour les occurrences
+- Annulation simple ou de toutes les occurrences futures
+- Filtrage par date, statut, coach
+- Propriétés calculées: durée, is_past, is_upcoming, is_today
+
+### Modules à venir
+- **Attendances**: Intention de présence + présence réelle avec check-in/check-out
+- **Subscriptions**: Abonnements avec types, paiements et renouvellements
+- **CustomFields**: Champs personnalisables en JSONB
+- **AuditLogs**: Traçabilité des modifications pour conformité RGPD
+
+## Technologies
+
+- **Framework**: NestJS 11
+- **Base de données**: PostgreSQL 17
+- **ORM**: TypeORM
+- **Authentification**: JWT + Passport
+- **Validation**: class-validator + class-transformer
+- **Sécurité**: bcryptjs pour le hashing des mots de passe
+- **Environnement**: Docker + Docker Compose
+
+## Prérequis
+
+- Node.js 18+
+- Docker et Docker Compose
+- npm ou yarn
+
+## Installation
+
+### 1. Cloner le repository
 
 ```bash
-$ npm install
+git clone https://github.com/greg0r1/classhub-api.git
+cd classhub-api
 ```
 
-## Compile and run the project
+### 2. Installer les dépendances
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
+### 3. Configuration de l'environnement
+
+Créer un fichier `.env` à la racine du projet:
+
+```env
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=classhub_user
+DB_PASSWORD=classhub_password
+DB_DATABASE=classhub_db
+
+# JWT
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_EXPIRES_IN=7d
+
+# Application
+PORT=3000
+NODE_ENV=development
+```
+
+### 4. Démarrer la base de données
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker-compose up -d
 ```
 
-## Deployment
+Cela démarre:
+- PostgreSQL sur le port 5432
+- pgAdmin sur le port 5050 (http://localhost:5050)
+  - Email: admin@classhub.com
+  - Password: admin
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 5. Démarrer l'application
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Mode développement avec hot-reload
+npm run start:dev
+
+# Mode production
+npm run build
+npm run start:prod
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+L'API sera disponible sur `http://localhost:3000`
 
-## Resources
+## Structure du projet
 
-Check out a few resources that may come in handy when working with NestJS:
+```
+src/
+├── common/                    # Code partagé
+│   ├── decorators/           # @CurrentUser, @Roles
+│   └── guards/               # JwtAuthGuard, RolesGuard
+├── config/                   # Configuration
+├── database/
+│   └── entities/             # Entités TypeORM
+│       ├── organization.entity.ts
+│       ├── user.entity.ts
+│       └── course.entity.ts
+├── modules/
+│   ├── auth/                 # Authentification JWT
+│   │   ├── dto/
+│   │   ├── strategies/       # JwtStrategy
+│   │   ├── auth.controller.ts
+│   │   ├── auth.service.ts
+│   │   └── auth.module.ts
+│   ├── organizations/
+│   ├── users/
+│   └── courses/              # Gestion des cours avec récurrence
+└── app.module.ts
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## API Endpoints
 
-## Support
+### Auth
+```http
+POST   /auth/register          # Créer un compte
+POST   /auth/login             # Se connecter
+GET    /auth/me                # Profil (protégé)
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Organizations
+```http
+POST   /organizations          # Créer une organisation
+GET    /organizations          # Lister toutes les organisations
+GET    /organizations/:id      # Détails d'une organisation
+PATCH  /organizations/:id      # Modifier une organisation
+DELETE /organizations/:id      # Supprimer (soft delete)
+```
 
-## Stay in touch
+### Users
+```http
+POST   /users                  # Créer un utilisateur
+GET    /users                  # Lister tous les utilisateurs
+GET    /users/:id              # Détails d'un utilisateur
+PATCH  /users/:id              # Modifier un utilisateur
+DELETE /users/:id              # Supprimer (soft delete)
+GET    /users/organization/:orgId         # Utilisateurs d'une org
+GET    /users/organization/:orgId/role/:role  # Filtrer par rôle
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Courses
+```http
+POST   /courses                # Créer un cours (+ récurrence)
+GET    /courses                # Lister tous les cours
+GET    /courses/:id            # Détails d'un cours
+PATCH  /courses/:id            # Modifier un cours
+DELETE /courses/:id            # Supprimer (soft delete)
+GET    /courses/organization/:orgId       # Cours d'une org
+GET    /courses/organization/:orgId/date-range  # Filtrer par dates
+GET    /courses/upcoming/:orgId           # Cours à venir
+POST   /courses/:id/cancel     # Annuler un cours
+```
 
-## License
+## Tests de l'API
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Un fichier [test-api.rest](test-api.rest) est fourni avec 41 tests d'API. Utilisez l'extension REST Client pour VSCode pour les exécuter.
+
+Variables à remplacer:
+- `@orgId`: ID d'une organisation créée
+- `@userId`: ID d'un utilisateur créé
+- `@courseId`: ID d'un cours créé
+- `@accessToken`: Token JWT obtenu via /auth/login
+
+## Architecture
+
+### Multi-tenant
+Chaque ressource est isolée par `organization_id`. Les utilisateurs ne peuvent accéder qu'aux données de leur organisation.
+
+### Système de récurrence des cours
+Les cours récurrents utilisent un système parent/enfant:
+- Le cours parent (`is_recurring = true`) sert de template
+- Les occurrences enfants référencent le parent via `parent_recurrence_id`
+- Génération automatique de 90 jours d'occurrences à la création
+- Possibilité d'annuler une occurrence unique ou toutes les futures
+
+### Sécurité
+- Mots de passe hashés avec bcrypt (10 rounds)
+- JWT avec expiration configurable
+- Guards NestJS pour protection des routes
+- Role-based access control (RBAC)
+- Validation stricte des DTOs avec class-validator
+
+### Soft Delete
+Toutes les entités principales utilisent le soft delete (`deleted_at`) pour préserver l'historique et permettre la restauration.
+
+## Base de données
+
+### Schéma PostgreSQL
+
+```sql
+-- Organizations (clubs sportifs)
+CREATE TABLE organizations (
+  id UUID PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  slug VARCHAR(255) UNIQUE NOT NULL,
+  email VARCHAR(255),
+  phone VARCHAR(50),
+  settings JSONB,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  deleted_at TIMESTAMP
+);
+
+-- Users (membres, coachs, admins)
+CREATE TABLE users (
+  id UUID PRIMARY KEY,
+  organization_id UUID REFERENCES organizations(id),
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  first_name VARCHAR(100),
+  last_name VARCHAR(100),
+  role VARCHAR(20) CHECK (role IN ('admin', 'coach', 'member')),
+  phone VARCHAR(50),
+  preferences JSONB,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  deleted_at TIMESTAMP
+);
+
+-- Courses (cours avec récurrence)
+CREATE TABLE courses (
+  id UUID PRIMARY KEY,
+  organization_id UUID REFERENCES organizations(id),
+  coach_id UUID REFERENCES users(id),
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  start_datetime TIMESTAMP NOT NULL,
+  end_datetime TIMESTAMP NOT NULL,
+  location VARCHAR(255),
+  max_participants INT,
+  status VARCHAR(20) CHECK (status IN ('scheduled', 'ongoing', 'completed', 'cancelled')),
+  is_recurring BOOLEAN DEFAULT false,
+  recurrence_rule JSONB,
+  parent_recurrence_id UUID REFERENCES courses(id),
+  cancellation_reason TEXT,
+  cancelled_at TIMESTAMP,
+  metadata JSONB,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  deleted_at TIMESTAMP
+);
+```
+
+### pgAdmin
+Accédez à pgAdmin sur http://localhost:5050
+- Créez une nouvelle connexion au serveur:
+  - Host: postgres (nom du service Docker)
+  - Port: 5432
+  - Database: classhub_db
+  - Username: classhub_user
+  - Password: classhub_password
+
+## Développement
+
+### Scripts disponibles
+
+```bash
+# Développement
+npm run start:dev              # Hot-reload
+
+# Production
+npm run build                  # Build TypeScript
+npm run start:prod             # Démarrer en production
+
+# Formatage et linting
+npm run format                 # Prettier
+npm run lint                   # ESLint
+
+# Tests
+npm run test                   # Tests unitaires
+npm run test:e2e              # Tests e2e
+npm run test:cov              # Coverage
+```
+
+### Conventions de code
+
+- **Commits**: Format Conventional Commits (`feat:`, `fix:`, `docs:`, etc.)
+- **Langue**: Français pour les noms métier, anglais pour le code
+- **TypeScript**: Strict mode activé
+- **ESLint + Prettier**: Configuration incluse
+
+## Variables d'environnement
+
+| Variable | Description | Défaut |
+|----------|-------------|--------|
+| `DB_HOST` | Hôte PostgreSQL | `localhost` |
+| `DB_PORT` | Port PostgreSQL | `5432` |
+| `DB_USERNAME` | Utilisateur DB | `classhub_user` |
+| `DB_PASSWORD` | Mot de passe DB | `classhub_password` |
+| `DB_DATABASE` | Nom de la DB | `classhub_db` |
+| `JWT_SECRET` | Clé secrète JWT | **À changer en prod!** |
+| `JWT_EXPIRES_IN` | Durée de validité JWT | `7d` |
+| `PORT` | Port de l'application | `3000` |
+| `NODE_ENV` | Environnement | `development` |
+
+## Roadmap
+
+- [ ] Module Attendances (intention + présence réelle)
+- [ ] Module Subscriptions (abonnements et paiements)
+- [ ] Middleware multi-tenant automatique
+- [ ] Module CustomFields (champs personnalisés)
+- [ ] Module AuditLogs (traçabilité RGPD)
+- [ ] Statistiques et analytics
+- [ ] Notifications push et email
+- [ ] API de webhooks
+- [ ] Documentation Swagger/OpenAPI
+- [ ] Tests e2e complets
+
+## Contribution
+
+Les contributions sont les bienvenues! Merci de:
+1. Fork le projet
+2. Créer une branche (`git checkout -b feature/AmazingFeature`)
+3. Commit les changements (`git commit -m 'feat: Add AmazingFeature'`)
+4. Push vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrir une Pull Request
+
+## Licence
+
+MIT
+
+## Auteur
+
+Gregory DERNAUCOURT ([@greg0r1](https://github.com/greg0r1))
+
+---
+
+Construit avec [NestJS](https://nestjs.com/) et [TypeORM](https://typeorm.io/)
