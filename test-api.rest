@@ -328,3 +328,101 @@ Content-Type: application/json
   "email": "nonexistent@example.com",
   "password": "SecurePassword123!"
 }
+
+###############################################################################
+# ATTENDANCES ENDPOINTS
+###############################################################################
+
+### 42. Déclarer une intention de présence ("Je serai là")
+POST {{baseUrl}}/attendances/intention
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "course_id": "{{courseId}}",
+  "user_id": "{{userId}}",
+  "intention": "will_attend"
+}
+
+### 43. Changer d'avis ("Je ne viendrai pas")
+POST {{baseUrl}}/attendances/intention
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "course_id": "{{courseId}}",
+  "user_id": "{{userId}}",
+  "intention": "will_not_attend"
+}
+
+### 44. Marquer sa présence effective (adhérent se marque présent)
+POST {{baseUrl}}/attendances/mark
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "course_id": "{{courseId}}",
+  "user_id": "{{userId}}",
+  "actual_attendance": true
+}
+
+### 45. Coach marque la présence d'un adhérent
+POST {{baseUrl}}/attendances/mark
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "course_id": "{{courseId}}",
+  "user_id": "{{userId}}",
+  "actual_attendance": true,
+  "notes": "Arrivé à 19h05 (retard acceptable)"
+}
+
+### 46. Walk-in : présent sans inscription préalable
+POST {{baseUrl}}/attendances/mark
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "course_id": "{{courseId}}",
+  "user_id": "ANOTHER_USER_ID",
+  "actual_attendance": true
+}
+
+### 47. Voir toutes les présences d'un cours
+GET {{baseUrl}}/attendances/course/{{courseId}}
+Authorization: Bearer {{accessToken}}
+
+### 48. Voir les inscrits d'un cours (intentions "will_attend")
+GET {{baseUrl}}/attendances/course/{{courseId}}/registered
+Authorization: Bearer {{accessToken}}
+
+### 49. Voir les présents effectifs d'un cours
+GET {{baseUrl}}/attendances/course/{{courseId}}/present
+Authorization: Bearer {{accessToken}}
+
+### 50. Statistiques d'un cours
+GET {{baseUrl}}/attendances/course/{{courseId}}/stats
+Authorization: Bearer {{accessToken}}
+
+### 51. Voir l'historique des présences d'un adhérent
+GET {{baseUrl}}/attendances/user/{{userId}}
+Authorization: Bearer {{accessToken}}
+
+### 52. Statistiques d'un adhérent (taux présence, risque abandon)
+GET {{baseUrl}}/attendances/user/{{userId}}/stats
+Authorization: Bearer {{accessToken}}
+
+### 53. Modifier une présence (admin override)
+PATCH {{baseUrl}}/attendances/ATTENDANCE_ID
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "actual_attendance": false,
+  "notes": "Corrigé par admin : était absent finalement"
+}
+
+### 54. Supprimer une présence
+DELETE {{baseUrl}}/attendances/ATTENDANCE_ID
+Authorization: Bearer {{accessToken}}
