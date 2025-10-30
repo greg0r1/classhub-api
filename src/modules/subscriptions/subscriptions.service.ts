@@ -69,7 +69,7 @@ export class SubscriptionsService {
       payment_method: dto.payment_method,
       payment_reference: dto.payment_reference,
       payment_date:
-        dto.payment_status === 'paid' ? new Date() : null,
+        dto.payment_status === 'paid' ? new Date() : undefined,
       auto_renew: dto.auto_renew ?? false,
       notes: dto.notes,
     });
@@ -222,7 +222,9 @@ export class SubscriptionsService {
       dto.amount_paid ?? subscription.subscription_type.price;
     subscription.payment_status = dto.payment_status ?? 'pending';
     subscription.payment_method = dto.payment_method ?? subscription.payment_method;
-    subscription.payment_reference = dto.payment_reference;
+    if (dto.payment_reference !== undefined) {
+      subscription.payment_reference = dto.payment_reference;
+    }
     subscription.payment_date =
       dto.payment_status === 'paid' ? new Date() : subscription.payment_date;
     if (dto.notes) {

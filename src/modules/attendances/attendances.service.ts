@@ -282,8 +282,8 @@ export class AttendancesService {
       },
     });
 
-    const occupancyRate = course.max_participants
-      ? (present / course.max_participants) * 100
+    const occupancyRate = course.max_capacity
+      ? (present / course.max_capacity) * 100
       : null;
 
     const reliabilityRate = registered > 0 ? (present / registered) * 100 : 0;
@@ -293,7 +293,7 @@ export class AttendancesService {
       registered_count: registered,
       present_count: present,
       walk_ins_count: walkIns,
-      max_capacity: course.max_participants,
+      max_capacity: course.max_capacity,
       occupancy_rate: occupancyRate,
       reliability_rate: reliabilityRate,
     };

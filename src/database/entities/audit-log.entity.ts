@@ -88,7 +88,7 @@ export class AuditLog {
     nullable: true,
     comment: 'ID de l\'entité concernée',
   })
-  entity_id: string;
+  entity_id: string | null;
 
   // Valeurs avant/après (pour UPDATE)
   @Column({
@@ -96,14 +96,14 @@ export class AuditLog {
     nullable: true,
     comment: 'Valeurs avant modification',
   })
-  old_values: Record<string, any>;
+  old_values: Record<string, any> | null;
 
   @Column({
     type: 'jsonb',
     nullable: true,
     comment: 'Nouvelles valeurs après modification',
   })
-  new_values: Record<string, any>;
+  new_values: Record<string, any> | null;
 
   // Contexte de la requête
   @Column({
