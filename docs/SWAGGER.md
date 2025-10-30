@@ -813,6 +813,269 @@ Content-Type: application/json
 
 ---
 
+## ⚠️ Limites et Rate Limiting
+
+### Limites de l'API
+
+Pour garantir la stabilité et la performance de l'API, les limites suivantes sont appliquées :
+
+| Limite | Valeur | Description |
+|--------|--------|-------------|
+| **Rate Limiting** | 100 req/min | Nombre maximum de requêtes par minute et par utilisateur |
+| **Pagination max** | 100 éléments | Limite maximale d'éléments retournés par page |
+| **Taille fichiers** | 5 MB | Taille maximale pour les uploads (logos, certificats) |
+| **Timeout requêtes** | 30 secondes | Durée maximale d'exécution d'une requête |
+| **Token JWT** | 24 heures | Durée de validité du token d'authentification |
+| **Connexions simultanées** | 10 | Nombre maximum de connexions simultanées par utilisateur |
+
+### Réponses en cas de dépassement
+
+#### 429 - Too Many Requests
+
+```json
+{
+  "statusCode": 429,
+  "message": "Too Many Requests - Rate limit exceeded. Try again in 60 seconds.",
+  "error": "Too Many Requests",
+  "retryAfter": 60
+}
+```
+
+**Headers de réponse** :
+- `X-RateLimit-Limit`: Limite totale
+- `X-RateLimit-Remaining`: Requêtes restantes
+- `X-RateLimit-Reset`: Timestamp de réinitialisation
+- `Retry-After`: Secondes avant nouvelle tentative
+
+### Bonnes Pratiques
+
+1. **Implémenter un retry avec backoff exponentiel**
+   ```typescript
+   async function apiCallWithRetry(url: string, retries = 3) {
+     for (let i = 0; i < retries; i++) {
+       try {
+         return await fetch(url);
+       } catch (error) {
+         if (error.status === 429) {
+           const delay = Math.pow(2, i) * 1000; // 1s, 2s, 4s
+           await new Promise(resolve => setTimeout(resolve, delay));
+         } else {
+           throw error;
+         }
+       }
+     }
+   }
+   ```
+
+2. **Vérifier les headers de rate limiting**
+3. **Utiliser la pagination pour les grandes listes**
+4. **Mettre en cache les données peu changeantes**
+
+---
+
+## 📝 Changelog API
+
+### v1.0.0 (2025-10-30)
+
+**🎉 Initial Release**
+
+**Modules Implémentés** :
+- ✅ **Organizations** : Gestion multi-tenant des clubs sportifs
+- ✅ **Users** : Gestion des utilisateurs (Admin, Coach, Member)
+- ✅ **Auth** : Authentification JWT avec guards et décorateurs
+- ✅ **Courses** : Système de cours avec récurrence automatique
+- ✅ **Attendances** : Double présence (intention + présence effective)
+- ✅ **Subscriptions** : Gestion des abonnements et paiements
+- ✅ **AuditLogs** : Traçabilité complète RGPD
+
+**Fonctionnalités** :
+- 🔐 Authentification JWT (24h)
+- 🏢 Architecture multi-tenant avec isolation des données
+- 🔁 Système de récurrence pour cours répétés (daily, weekly, monthly)
+- 📊 Statistiques avancées (présences, taux d'occupation, revenus)
+- 🛡️ RBAC (Role-Based Access Control)
+- 📋 Audit trail complet pour conformité RGPD
+- 📚 Documentation Swagger complète (49 endpoints)
+
+**Endpoints** :
+- 7 endpoints Organizations
+- 8 endpoints Users
+- 3 endpoints Auth
+- 9 endpoints Courses
+- 10 endpoints Attendances
+- 15 endpoints Subscriptions
+- 9 endpoints AuditLogs
+
+**Total** : 49 endpoints REST documentés
+
+**Base de données** :
+- PostgreSQL 15 avec TypeORM
+- 7 entités principales
+- Soft delete sur toutes les entités
+- Timestamps automatiques (created_at, updated_at, deleted_at)
+- JSONB pour metadata et règles de récurrence
+
+**Sécurité** :
+- JWT avec secret configurable
+- Guards (JwtAuthGuard, RolesGuard)
+- Interceptors (MultiTenant, Audit)
+- Validation des DTOs avec class-validator
+- CORS configuré pour localhost:4200
+
+---
+
+## 🔮 Roadmap et Fonctionnalités Futures
+
+### v1.1.0 (Prévu Q1 2026)
+
+**Fonctionnalités Prévues** :
+
+#### 🔔 Webhooks
+- Notifications en temps réel pour événements importants
+- Intégrations avec services externes (Stripe, Zapier)
+- Retry automatique en cas d'échec
+
+**Exemples d'événements** :
+- `course.created` : Nouveau cours créé
+- `attendance.registered` : Nouvelle inscription
+- `subscription.expired` : Abonnement expiré
+- `subscription.renewed` : Renouvellement d'abonnement
+- `payment.succeeded` : Paiement réussi
+- `payment.failed` : Échec de paiement
+
+**Documentation Swagger pour Webhooks** :
+```typescript
+@ApiTags('webhooks')
+@Controller('webhooks')
+export class WebhooksController {
+
+  @Post('stripe')
+  @ApiOperation({
+    summary: 'Webhook Stripe pour événements de paiement',
+    description: 'Endpoint appelé par Stripe lors d\'événements de paiement (payment_intent.succeeded, payment_intent.failed, etc.)'
+  })
+  @ApiBody({
+    description: 'Payload Stripe avec signature',
+    schema: {
+      example: {
+        id: 'evt_1234567890',
+        type: 'payment_intent.succeeded',
+        data: {
+          object: {
+            id: 'pi_1234567890',
+            amount: 7999,
+            currency: 'eur',
+            status: 'succeeded'
+          }
+        }
+      }
+    }
+  })
+  @ApiHeader({
+    name: 'stripe-signature',
+    description: 'Signature HMAC SHA256 de Stripe',
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Webhook traité avec succès'
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Signature invalide ou payload malformé'
+  })
+  handleStripeWebhook(@Body() payload: any, @Headers('stripe-signature') signature: string) {
+    // Vérifier la signature
+    // Traiter l'événement
+  }
+}
+```
+
+#### 📤 Upload de Fichiers
+- Upload de logos pour organisations
+- Certificats médicaux pour adhérents
+- Photos de profil utilisateurs
+- Validation de type et taille
+
+**Documentation Swagger pour Upload** :
+```typescript
+@Post('organization/:id/logo')
+@UseInterceptors(FileInterceptor('file'))
+@ApiConsumes('multipart/form-data')
+@ApiOperation({
+  summary: 'Upload du logo d\'une organisation',
+  description: 'Upload d\'un fichier image pour le logo (PNG, JPG, max 5MB)'
+})
+@ApiParam({
+  name: 'id',
+  type: String,
+  format: 'uuid',
+  description: 'ID de l\'organisation',
+})
+@ApiBody({
+  description: 'Fichier image',
+  schema: {
+    type: 'object',
+    properties: {
+      file: {
+        type: 'string',
+        format: 'binary',
+        description: 'Fichier image (PNG, JPG, max 5MB)',
+      },
+    },
+  },
+})
+@ApiResponse({
+  status: 200,
+  description: 'Logo uploadé avec succès',
+  schema: {
+    example: {
+      url: 'https://storage.classhub.com/logos/org-123-abc456.png',
+      size: 245678,
+      mimeType: 'image/png'
+    }
+  }
+})
+@ApiResponse({
+  status: 400,
+  description: 'Fichier invalide (type ou taille)',
+  schema: {
+    example: {
+      statusCode: 400,
+      message: 'File too large. Maximum size is 5MB',
+      error: 'Bad Request'
+    }
+  }
+})
+uploadLogo(
+  @Param('id') id: string,
+  @UploadedFile() file: Express.Multer.File
+) {
+  // Valider et sauvegarder le fichier
+}
+```
+
+#### 📊 Analytics Avancées
+- Dashboard avec métriques en temps réel
+- Export de données (CSV, Excel, PDF)
+- Graphiques de tendances
+
+#### 🔧 Autres Améliorations
+- Notifications email (SendGrid/Mailgun)
+- Notifications push (Firebase)
+- Support i18n (multi-langues)
+- Export OpenAPI pour Postman
+- SDK TypeScript officiel
+
+### v1.2.0 (Prévu Q2 2026)
+
+- Intégration calendrier (Google Calendar, iCal)
+- Système de réservation avec paiement en ligne
+- Application mobile (React Native)
+- Mode hors-ligne avec synchronisation
+
+---
+
 ## 📖 Ressources
 
 - [Documentation officielle NestJS Swagger](https://docs.nestjs.com/openapi/introduction)
