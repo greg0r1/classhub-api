@@ -54,7 +54,7 @@ async function bootstrap() {
       'https://github.com/greg0r1/classhub-api',
       '',
     )
-    .setLicense('MIT', '')
+    .setLicense('MIT', 'https://opensource.org/licenses/MIT')
     .addTag('auth', 'Authentification et gestion des tokens JWT')
     .addTag('organizations', 'Gestion des clubs sportifs (multi-tenant)')
     .addTag('users', 'Gestion des utilisateurs (admins, coachs, membres)')
