@@ -13,6 +13,7 @@ import { LoginDto, RegisterDto } from './dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { CurrentUserData } from '../../common/decorators/current-user.decorator';
+import { DisableTenantCheck } from '../../common/decorators/disable-tenant-check.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -20,6 +21,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
+  @DisableTenantCheck()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Créer un compte utilisateur',
@@ -50,6 +52,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @DisableTenantCheck()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Se connecter',

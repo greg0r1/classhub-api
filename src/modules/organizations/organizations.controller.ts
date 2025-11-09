@@ -13,6 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 import { OrganizationsService } from './organizations.service';
 import { CreateOrganizationDto, UpdateOrganizationDto } from './dto';
+import { DisableTenantCheck } from '../../common/decorators/disable-tenant-check.decorator';
 
 @ApiTags('organizations')
 @ApiBearerAuth('JWT-auth')
@@ -25,6 +26,7 @@ export class OrganizationsController {
    * Créer une nouvelle organisation
    */
   @Post()
+  @DisableTenantCheck()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Créer une nouvelle organisation',
