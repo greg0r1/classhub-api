@@ -23,7 +23,9 @@
     "db:reset": "docker-compose down -v && docker-compose up -d",
     "migration:generate": "typeorm migration:generate -d src/config/typeorm.config.ts",
     "migration:run": "typeorm migration:run -d src/config/typeorm.config.ts",
-    "migration:revert": "typeorm migration:revert -d src/config/typeorm.config.ts"
+    "migration:revert": "typeorm migration:revert -d src/config/typeorm.config.ts",
+    "seed": "ts-node -r tsconfig-paths/register src/database/seeds/seed.ts",
+    "seed:run": "npm run seed"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

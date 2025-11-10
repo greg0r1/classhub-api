@@ -6,10 +6,13 @@ import {
   HttpStatus,
   Get,
   UseGuards,
+  Req,
+  Ip,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import type { Request } from 'express';
 import { AuthService } from './auth.service';
-import { LoginDto, RegisterDto } from './dto';
+import { LoginDto, RegisterDto, RefreshTokenDto, AuthResponseDto } from './dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { CurrentUserData } from '../../common/decorators/current-user.decorator';
@@ -25,15 +28,18 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Créer un compte utilisateur',
-    description: 'Inscription d\'un nouvel utilisateur dans une organisation. Retourne un token JWT pour une connexion immédiate.'
+    description: 'Inscription d\'un nouvel utilisateur dans une organisation. Retourne un access token (15min) et un refresh token (30 jours).'
   })
   @ApiBody({ type: RegisterDto })
   @ApiResponse({
     status: 201,
-    description: 'Utilisateur créé avec succès. Token JWT retourné.',
+    description: 'Utilisateur créé avec succès. Tokens JWT retournés.',
+    type: AuthResponseDto,
     schema: {
       example: {
         access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        refresh_token: 'a1b2c3d4e5f6...',
+        expires_in: 900,
         user: {
           id: '123e4567-e89b-12d3-a456-426614174000',
           email: 'user@example.com',
@@ -47,8 +53,13 @@ export class AuthController {
   })
   @ApiResponse({ status: 400, description: 'Données invalides' })
   @ApiResponse({ status: 409, description: 'Email déjà utilisé' })
-  register(@Body() registerDto: RegisterDto) {
-    return this.authService.register(registerDto);
+  register(
+    @Body() registerDto: RegisterDto,
+    @Req() req: Request,
+    @Ip() ip: string,
+  ) {
+    const userAgent = req.headers['user-agent'];
+    return this.authService.register(registerDto, userAgent, ip);
   }
 
   @Post('login')
@@ -56,15 +67,18 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Se connecter',
-    description: 'Authentification avec email et mot de passe. Retourne un token JWT valide 7 jours.'
+    description: 'Authentification avec email et mot de passe. Retourne un access token (15min) et un refresh token (30 jours).'
   })
   @ApiBody({ type: LoginDto })
   @ApiResponse({
     status: 200,
-    description: 'Connexion réussie. Token JWT retourné.',
+    description: 'Connexion réussie. Tokens JWT retournés.',
+    type: AuthResponseDto,
     schema: {
       example: {
         access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        refresh_token: 'a1b2c3d4e5f6...',
+        expires_in: 900,
         user: {
           id: '123e4567-e89b-12d3-a456-426614174000',
           email: 'user@example.com',
@@ -77,8 +91,74 @@ export class AuthController {
     }
   })
   @ApiResponse({ status: 401, description: 'Email ou mot de passe incorrect' })
-  login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  login(
+    @Body() loginDto: LoginDto,
+    @Req() req: Request,
+    @Ip() ip: string,
+  ) {
+    const userAgent = req.headers['user-agent'];
+    return this.authService.login(loginDto, userAgent, ip);
+  }
+
+  @Post('refresh')
+  @DisableTenantCheck()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Rafraîchir le token d\'accès',
+    description: 'Génère un nouveau access token (15min) et un nouveau refresh token (30 jours) en utilisant un refresh token valide. L\'ancien refresh token est automatiquement révoqué (rotation des tokens).'
+  })
+  @ApiBody({ type: RefreshTokenDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Tokens rafraîchis avec succès',
+    type: AuthResponseDto,
+    schema: {
+      example: {
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        refresh_token: 'b2c3d4e5f6a1...',
+        expires_in: 900,
+        user: {
+          id: '123e4567-e89b-12d3-a456-426614174000',
+          email: 'user@example.com',
+          first_name: 'John',
+          last_name: 'Doe',
+          role: 'admin',
+          organization_id: '123e4567-e89b-12d3-a456-426614174001'
+        }
+      }
+    }
+  })
+  @ApiResponse({ status: 401, description: 'Refresh token invalide, révoqué ou expiré' })
+  refresh(
+    @Body() refreshTokenDto: RefreshTokenDto,
+    @Req() req: Request,
+    @Ip() ip: string,
+  ) {
+    const userAgent = req.headers['user-agent'];
+    return this.authService.refresh(refreshTokenDto, userAgent, ip);
+  }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Se déconnecter',
+    description: 'Révoque tous les refresh tokens de l\'utilisateur actuel. Les access tokens restent valides jusqu\'à expiration (15min).'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Déconnexion réussie',
+    schema: {
+      example: {
+        message: 'Déconnexion réussie'
+      }
+    }
+  })
+  @ApiResponse({ status: 401, description: 'Non authentifié' })
+  async logout(@CurrentUser() user: CurrentUserData) {
+    await this.authService.revokeAllUserTokens(user.id);
+    return { message: 'Déconnexion réussie' };
   }
 
   @Get('me')
