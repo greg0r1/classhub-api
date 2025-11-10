@@ -57,16 +57,18 @@ async function seed() {
         email: 'contact@karate-paris.com',
         phone: '+33 1 42 34 56 78',
         address: '123 Rue du Dojo, 75001 Paris',
-        website: 'https://karate-paris.com',
         logo_url: 'https://via.placeholder.com/200x200?text=Karate',
-        description: 'École de karaté traditionnelle au cœur de Paris. Plus de 30 ans d\'expérience.',
         subscription_status: 'active',
+        subscription_plan: 'pro',
         settings: {
           timezone: 'Europe/Paris',
-          default_course_capacity: 20,
-          default_course_duration: 60,
-          allow_member_self_registration: true,
-          require_medical_certificate: true,
+          default_capacity: 20,
+          season_start_month: 9,
+          lock_attendance_by_coach: true,
+        },
+        metadata: {
+          website: 'https://karate-paris.com',
+          description: 'École de karaté traditionnelle au cœur de Paris. Plus de 30 ans d\'expérience.',
         },
       }),
       organizationRepo.create({
@@ -75,16 +77,18 @@ async function seed() {
         email: 'hello@yogalyon.fr',
         phone: '+33 4 78 12 34 56',
         address: '45 Avenue de la Paix, 69003 Lyon',
-        website: 'https://yogalyon.fr',
         logo_url: 'https://via.placeholder.com/200x200?text=Yoga',
-        description: 'Studio de yoga moderne avec cours pour tous niveaux.',
         subscription_status: 'active',
+        subscription_plan: 'premium',
         settings: {
           timezone: 'Europe/Paris',
-          default_course_capacity: 15,
-          default_course_duration: 90,
-          allow_member_self_registration: true,
-          require_medical_certificate: false,
+          default_capacity: 15,
+          season_start_month: 9,
+          lock_attendance_by_coach: false,
+        },
+        metadata: {
+          website: 'https://yogalyon.fr',
+          description: 'Studio de yoga moderne avec cours pour tous niveaux.',
         },
       }),
       organizationRepo.create({
@@ -93,17 +97,19 @@ async function seed() {
         email: 'info@crossfitmarseille.com',
         phone: '+33 4 91 23 45 67',
         address: '78 Boulevard du Sport, 13001 Marseille',
-        website: 'https://crossfitmarseille.com',
         logo_url: 'https://via.placeholder.com/200x200?text=CrossFit',
-        description: 'Box CrossFit affiliée avec coaching personnalisé.',
         subscription_status: 'trial',
-        trial_end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 jours
+        subscription_plan: 'free',
+        trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 jours
         settings: {
           timezone: 'Europe/Paris',
-          default_course_capacity: 12,
-          default_course_duration: 60,
-          allow_member_self_registration: false,
-          require_medical_certificate: true,
+          default_capacity: 12,
+          season_start_month: 9,
+          lock_attendance_by_coach: true,
+        },
+        metadata: {
+          website: 'https://crossfitmarseille.com',
+          description: 'Box CrossFit affiliée avec coaching personnalisé.',
         },
       }),
     ]);
@@ -380,14 +386,13 @@ async function seed() {
             name: 'Abonnement Mensuel',
             price: 50,
             currency: 'EUR',
-            duration: 1,
-            duration_unit: 'month',
+            duration_months: 1,
           },
           start_date: startDate,
           end_date: endDate,
           status: 'active',
-          auto_renewal: true,
           amount_paid: 50,
+          payment_status: 'paid',
           payment_method: 'card',
           payment_date: startDate,
         })
@@ -425,11 +430,11 @@ async function seed() {
 
       courses.push(
         courseRepo.create({
-          organization_id: orgs[0].id,
+          organization: orgs[0],
           title: courseType.name,
           description: `Cours de ${courseType.name.toLowerCase()} - Tous niveaux bienvenus`,
-          start_time: date,
-          end_time: new Date(date.getTime() + 60 * 60 * 1000), // +1h
+          start_datetime: date,
+          end_datetime: new Date(date.getTime() + 60 * 60 * 1000), // +1h
           max_capacity: 20,
           coach_id: coach.id,
           location: 'Dojo Principal',
@@ -459,11 +464,11 @@ async function seed() {
 
       courses.push(
         courseRepo.create({
-          organization_id: orgs[1].id,
+          organization: orgs[1],
           title: courseType.name,
           description: `Séance de ${courseType.name.toLowerCase()} pour se ressourcer`,
-          start_time: date,
-          end_time: new Date(date.getTime() + 90 * 60 * 1000), // +1h30
+          start_datetime: date,
+          end_datetime: new Date(date.getTime() + 90 * 60 * 1000), // +1h30
           max_capacity: 15,
           coach_id: coach.id,
           location: 'Studio A',
@@ -494,11 +499,11 @@ async function seed() {
 
       courses.push(
         courseRepo.create({
-          organization_id: orgs[2].id,
+          organization: orgs[2],
           title: `WOD: ${wod}`,
           description: `Séance CrossFit intense - ${wod}`,
-          start_time: date,
-          end_time: new Date(date.getTime() + 60 * 60 * 1000), // +1h
+          start_datetime: date,
+          end_datetime: new Date(date.getTime() + 60 * 60 * 1000), // +1h
           max_capacity: 12,
           coach_id: coach.id,
           location: 'Box Principal',

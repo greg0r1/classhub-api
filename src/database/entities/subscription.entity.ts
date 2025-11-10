@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
@@ -19,19 +20,21 @@ export interface SubscriptionTypeDetails {
   benefits?: string[]; // Avantages inclus
 }
 
-@Entity('subscriptions')
+@Entity('member_subscriptions')
 export class Subscription {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   // Relations
   @ManyToOne(() => Organization, { nullable: false })
+  @JoinColumn({ name: 'organization_id' })
   organization: Organization;
 
   @Column({ type: 'uuid' })
   organization_id: string;
 
   @ManyToOne(() => User, { nullable: false })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @Column({ type: 'uuid' })
@@ -122,6 +125,7 @@ export class Subscription {
   cancellation_reason: string;
 
   @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'cancelled_by_user_id' })
   cancelled_by_user: User;
 
   @Column({ type: 'uuid', nullable: true })
