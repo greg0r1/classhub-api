@@ -4,9 +4,11 @@
 
 Une fois l'application démarrée, la documentation interactive Swagger est accessible à :
 
-**🔗 http://localhost:3000/api**
+**🔗 Interface Swagger UI** : [http://localhost:3000/api](http://localhost:3000/api)
 
-**📄 JSON OpenAPI** : http://localhost:3000/api-json
+**📄 JSON OpenAPI** : [http://localhost:3000/api-json](http://localhost:3000/api-json)
+
+> **Note** : Si vous utilisez Docker, assurez-vous que le conteneur `classhub-api` est bien démarré et en état "healthy" (`docker-compose ps`). Le lien JSON OpenAPI est utilisé pour générer des clients API automatiquement.
 
 ---
 
