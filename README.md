@@ -88,12 +88,12 @@ Créer un fichier `.env` à la racine du projet:
 # Database
 DB_HOST=localhost
 DB_PORT=5432
-DB_USERNAME=classhub_user
-DB_PASSWORD=classhub_password
-DB_DATABASE=classhub_db
+DB_USERNAME=classhub_admin
+DB_PASSWORD=dev_password_123
+DB_DATABASE=classhub_dev
 
 # JWT
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_SECRET=votre_secret_super_securise_a_changer_en_production
 JWT_EXPIRES_IN=7d
 
 # Application
@@ -109,9 +109,12 @@ docker-compose up -d
 
 Cela démarre:
 - PostgreSQL sur le port 5432
-- pgAdmin sur le port 5050 (http://localhost:5050)
-  - Email: admin@classhub.com
-  - Password: admin
+- Adminer sur le port 8081 (http://localhost:8081)
+  - Système: PostgreSQL
+  - Serveur: postgres
+  - Utilisateur: classhub_admin
+  - Mot de passe: dev_password_123
+  - Base de données: classhub_dev
 
 ### 5. Démarrer l'application
 
@@ -319,14 +322,14 @@ CREATE TABLE courses (
 );
 ```
 
-### pgAdmin
-Accédez à pgAdmin sur http://localhost:5050
-- Créez une nouvelle connexion au serveur:
-  - Host: postgres (nom du service Docker)
-  - Port: 5432
-  - Database: classhub_db
-  - Username: classhub_user
-  - Password: classhub_password
+### Adminer (Interface de gestion PostgreSQL)
+Accédez à Adminer sur **http://localhost:8081**
+- Connexion à la base de données:
+  - **Système**: PostgreSQL
+  - **Serveur**: postgres (nom du service Docker)
+  - **Utilisateur**: classhub_admin
+  - **Mot de passe**: dev_password_123
+  - **Base de données**: classhub_dev
 
 ## Développement
 
@@ -363,9 +366,9 @@ npm run test:cov              # Coverage
 |----------|-------------|--------|
 | `DB_HOST` | Hôte PostgreSQL | `localhost` |
 | `DB_PORT` | Port PostgreSQL | `5432` |
-| `DB_USERNAME` | Utilisateur DB | `classhub_user` |
-| `DB_PASSWORD` | Mot de passe DB | `classhub_password` |
-| `DB_DATABASE` | Nom de la DB | `classhub_db` |
+| `DB_USERNAME` | Utilisateur DB | `classhub_admin` |
+| `DB_PASSWORD` | Mot de passe DB | `dev_password_123` |
+| `DB_DATABASE` | Nom de la DB | `classhub_dev` |
 | `JWT_SECRET` | Clé secrète JWT | **À changer en prod!** |
 | `JWT_EXPIRES_IN` | Durée de validité JWT | `7d` |
 | `PORT` | Port de l'application | `3000` |
