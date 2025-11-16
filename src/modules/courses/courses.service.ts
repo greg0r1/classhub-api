@@ -168,11 +168,22 @@ export class CoursesService {
     startDate: Date,
     endDate: Date,
   ): Promise<Course[]> {
+    // Validation : startDate doit être antérieure à endDate
+    if (startDate > endDate) {
+      throw new BadRequestException(
+        'La date de début doit être antérieure à la date de fin',
+      );
+    }
+
+    // Normaliser la date de fin pour inclure toute la journée (23:59:59.999)
+    const normalizedEndDate = new Date(endDate);
+    normalizedEndDate.setHours(23, 59, 59, 999);
+
     return await this.courseRepository.find({
       where: {
         organization_id: organizationId,
         deleted_at: IsNull(),
-        start_datetime: Between(startDate, endDate),
+        start_datetime: Between(startDate, normalizedEndDate),
       },
       relations: ['organization', 'coach'],
       order: { start_datetime: 'ASC' },
