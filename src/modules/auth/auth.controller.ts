@@ -34,22 +34,7 @@ export class AuthController {
   @ApiResponse({
     status: 201,
     description: 'Utilisateur créé avec succès. Tokens JWT retournés.',
-    type: AuthResponseDto,
-    schema: {
-      example: {
-        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-        refresh_token: 'a1b2c3d4e5f6...',
-        expires_in: 900,
-        user: {
-          id: '123e4567-e89b-12d3-a456-426614174000',
-          email: 'user@example.com',
-          first_name: 'John',
-          last_name: 'Doe',
-          role: 'member',
-          organization_id: '123e4567-e89b-12d3-a456-426614174001'
-        }
-      }
-    }
+    type: AuthResponseDto
   })
   @ApiResponse({ status: 400, description: 'Données invalides' })
   @ApiResponse({ status: 409, description: 'Email déjà utilisé' })
@@ -73,22 +58,7 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Connexion réussie. Tokens JWT retournés.',
-    type: AuthResponseDto,
-    schema: {
-      example: {
-        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-        refresh_token: 'a1b2c3d4e5f6...',
-        expires_in: 900,
-        user: {
-          id: '123e4567-e89b-12d3-a456-426614174000',
-          email: 'user@example.com',
-          first_name: 'John',
-          last_name: 'Doe',
-          role: 'admin',
-          organization_id: '123e4567-e89b-12d3-a456-426614174001'
-        }
-      }
-    }
+    type: AuthResponseDto
   })
   @ApiResponse({ status: 401, description: 'Email ou mot de passe incorrect' })
   login(
@@ -111,22 +81,7 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Tokens rafraîchis avec succès',
-    type: AuthResponseDto,
-    schema: {
-      example: {
-        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-        refresh_token: 'b2c3d4e5f6a1...',
-        expires_in: 900,
-        user: {
-          id: '123e4567-e89b-12d3-a456-426614174000',
-          email: 'user@example.com',
-          first_name: 'John',
-          last_name: 'Doe',
-          role: 'admin',
-          organization_id: '123e4567-e89b-12d3-a456-426614174001'
-        }
-      }
-    }
+    type: AuthResponseDto
   })
   @ApiResponse({ status: 401, description: 'Refresh token invalide, révoqué ou expiré' })
   refresh(
